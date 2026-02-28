@@ -1,0 +1,4 @@
+# Environment variables
+# Ignore all environment files
+.env
+.env.*
