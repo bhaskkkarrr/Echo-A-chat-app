@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import getErrorMessage from "../utils/getErrorMessage";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
-import nProgress from "nprogress";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {
@@ -109,12 +108,10 @@ export const ChatProvider = ({ children }) => {
         body,
         config,
       );
-      console.log("group create data", data);
       setChats((prev) => {
         if (prev.some((c) => c._id === data.fullGroupChat._id)) return prev;
         return [data.fullGroupChat, ...prev];
       });
-      console.log("All chats", chats);
       return data;
     } catch (error) {
       setError(getErrorMessage(error));
@@ -122,13 +119,77 @@ export const ChatProvider = ({ children }) => {
       setGroupChatLoading(false);
     }
   };
-  useEffect(() => {
-    console.log(
-      "selectedChat type:",
-      Array.isArray(selectedChat) ? "ARRAY ❌" : "OBJECT ✅",
-      selectedChat,
-    );
-  }, [selectedChat]);
+  const removeUser = async (id) => {
+    try {
+      const { data } = await axios.put(
+        `${BASE_URL}/api/chat/remove-user`,
+        { chatId: selectedChat._id, userId: id },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      return data;
+    } catch (error) {
+      setError(getErrorMessage(error));
+    } finally {
+    }
+  };
+
+  const makeAdmin = async (id) => {
+    try {
+      const { data } = await axios.put(
+        `${BASE_URL}/api/chat/add-admin`,
+        { chatId: selectedChat._id, userId: id },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      console.log("DAta", data);
+      return data;
+    } catch (error) {
+      setError(getErrorMessage(error));
+    }
+  };
+
+  const renameGroup = async (name) => {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    try {
+      const { data } = await axios.put(
+        `${BASE_URL}/api/chat/rename-group`,
+        { chatName: name, chatId: selectedChat._id },
+        config,
+      );
+      return data;
+    } catch (error) {
+      setError(getErrorMessage(error));
+    }
+  };
+
+  const addToGroup = async (id) => {
+    try {
+      const { data } = await axios.put(
+        `${BASE_URL}/api/chat/add-user`,
+        { chatId: selectedChat._id, userId: id },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      return data;
+    } catch (error) {
+      setError(getErrorMessage(error));
+    }
+  };
+  const removeAdmin = async (id) => {
+    try {
+      const { data } = await axios.put(
+        `${BASE_URL}/api/chat/remove-admin`,
+        { chatId: selectedChat._id, userId: id },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      return data;
+    } catch (error) {
+      setError(getErrorMessage(error));
+    }
+  };
   return (
     <ChatContext.Provider
       value={{
@@ -141,6 +202,11 @@ export const ChatProvider = ({ children }) => {
         selectedChat,
         showRightSideBar,
         showUserModal,
+        removeUser,
+        makeAdmin,
+        addToGroup,
+        removeAdmin,
+        renameGroup,
         setShowUserModal,
         setShowRightSideBar,
         setSelectedChat,

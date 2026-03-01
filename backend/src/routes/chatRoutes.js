@@ -11,4 +11,5 @@ chatRouter.delete("/delete-group", verifyToken, chatController.deleteGroup);
 chatRouter.put("/add-user", verifyToken, chatController.addUserToGroup);
 chatRouter.put("/remove-user", verifyToken, chatController.removeUserFromGroup);
 chatRouter.put("/add-admin", verifyToken, chatController.addGroupAdmin);
+chatRouter.put("/remove-admin", verifyToken, chatController.removeFromAdmin);
 module.exports = chatRouter;

@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  
   const registerUser = async (email, name, password, phoneNumber) => {
     const res = await axios.post(
       `${BASE_API}/api/auth/register`,

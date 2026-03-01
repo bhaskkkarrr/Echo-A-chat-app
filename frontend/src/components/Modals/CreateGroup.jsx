@@ -56,7 +56,6 @@ const CreateGroup = ({ isOpen, onClose }) => {
   useEffect(() => {
     return () => clearTimeout(debounceRef.current);
   }, []);
-  console.log("Selected Users ", selectedUsers);
 
   const handleGroupUsers = (user) => {
     if (selectedUsers.find((u) => u._id === user._id)) {

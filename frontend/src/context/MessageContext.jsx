@@ -102,6 +102,7 @@ export const MessageProvider = ({ children }) => {
         error,
         notification,
         setNotification,
+        
       }}
     >
       {children}

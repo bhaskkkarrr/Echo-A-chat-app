@@ -39,7 +39,7 @@ exports.accessChat = async (req, res, next) => {
 
     let fullChat = await Chat.findById(createChat._id).populate(
       "users",
-      "-password"
+      "-password",
     );
 
     return res.status(201).json({ success: true, chat: fullChat });
@@ -110,7 +110,7 @@ exports.renameGroup = async (req, res, next) => {
     const updatedChat = await Chat.findByIdAndUpdate(
       chatId,
       { chatName },
-      { new: true }
+      { new: true },
     )
       .populate("users", "-password")
       .populate("groupAdmin", "-password");
@@ -155,7 +155,7 @@ exports.addUserToGroup = async (req, res, next) => {
     const updatedGroup = await Chat.findByIdAndUpdate(
       chatId,
       { $push: { users: userId } },
-      { new: true }
+      { new: true },
     )
       .populate("users", "-password")
       .populate("groupAdmin", "-password");
@@ -164,7 +164,7 @@ exports.addUserToGroup = async (req, res, next) => {
     } else {
       return res.status(201).json({
         success: true,
-        updatedGroup,
+        updatedChat: updatedGroup,
       });
     }
   } catch (error) {
@@ -184,7 +184,7 @@ exports.removeUserFromGroup = async (req, res, next) => {
     const removeUser = await Chat.findByIdAndUpdate(
       chatId,
       { $pull: { users: userId } },
-      { new: true }
+      { new: true },
     )
       .populate("users", "-password")
       .populate("groupAdmin", "-password");
@@ -215,10 +215,9 @@ exports.addGroupAdmin = async (req, res, next) => {
   const userId = req.body.userId;
   try {
     const isUserAdded = await Chat.findOne({ _id: chatId, users: userId });
-    console.log(isUserAdded);
     if (!isUserAdded) {
       return next(
-        new errorResponse("User should be in the group to make him admin", 400)
+        new errorResponse("User should be in the group to make him admin", 400),
       );
     }
     const isAdmin = await Chat.findOne({ _id: chatId, groupAdmin: userId });
@@ -231,8 +230,38 @@ exports.addGroupAdmin = async (req, res, next) => {
       {
         $push: { groupAdmin: userId },
       },
-      { new: true }
-    );
+      { new: true },
+    )
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+    if (!updateGrp) {
+      return next(new errorResponse("Group doesn't exist", 400));
+    } else {
+      return res.status(201).json({ success: true, updateGrp });
+    }
+  } catch (error) {
+    return next(new errorResponse(error.message, 500));
+  }
+};
+
+exports.removeFromAdmin = async (req, res, next) => {
+  console.log("req.body", req.body);
+  const chatId = req.body.chatId;
+  const userId = req.body.userId;
+  try {
+    const isAdmin = await Chat.findOne({ _id: chatId, groupAdmin: userId });
+    if (!isAdmin) {
+      return next(new errorResponse("User should be admin", 400));
+    }
+    const updateGrp = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $pull: { groupAdmin: userId },
+      },
+      { new: true },
+    )
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
     if (!updateGrp) {
       return next(new errorResponse("Group doesn't exist", 400));
     } else {
