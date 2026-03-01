@@ -53,7 +53,7 @@ const AllMessages = ({ messages }) => {
               <div className="max-w-[75%] md:max-w-[60%]">
                 {/* Message bubble */}
                 <div
-                  className={`px-4 py-2 rounded-2xl text-sm md:text-[15px] break-words shadow ${
+                  className={`px-4 py-2 rounded-2xl text-sm md:text-[15px] wrap-break-word shadow ${
                     isMine
                       ? "bg-baby-pink-300 text-white rounded-br-md"
                       : "bg-white text-black rounded-bl-md"
